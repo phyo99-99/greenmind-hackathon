@@ -33,4 +33,13 @@ The GPU power limit is set to 260 W and held constant for the whole run (`sudo n
 
 ## Results
 
-_Validation results to be added._
+Measured on the official grader (A100 40GB, power limit 260 W):
+
+| Setup | Track | Score | On time (SLO met) | P95 time per token | J per request | Accuracy |
+|---|---|---|---|---|---|---|
+| Prebuilt AWQ W4A16 (+ MTP) | Final | 0.0 | 90/300 | 113 ms | 195 | 87.1% |
+| **Our W8A8 INT8 (+ MTP)** | Final | **50.1** | **174/300** | **59 ms** | 200 | 85.5% |
+| Our W8A8 INT8 (+ MTP) | Validation | 78.7 | 96/100 | — | — | — |
+
+Our best Validation score with the prebuilt AWQ model was 62.9.
+Under the same power cap, the GPU ran at its maximum clock (1410 MHz) with INT8, compared with about 1110 to 1170 MHz with AWQ.
