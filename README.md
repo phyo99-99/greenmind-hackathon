@@ -18,7 +18,7 @@ We serve `CMKL/MANGO1.5-Qwen3.5-9B` on one A100 40GB. Best graded run is **Final
 - **Calibration data:** none. Weights are rounded directly, and activation scales are computed per token at run time.
 - **Kept in 16-bit:** `lm_head`, the vision encoder (unused), and the MTP draft head. This is the same ignore list as CMKL's own AWQ recipe.
 - **No fine-tuning.** Prompts, chat template, max_tokens, thinking mode and sampling are unchanged (all set by the grader).
-- **Where the files are:** `~/models/mango-w8a8-team16` on the team VM. No Hugging Face upload yet. This statement is the record until a HF URL exists.
+- **Where the files are:** [`Ptheingi99/MANGO1.5-Qwen3.5-9B-W8A8`](https://huggingface.co/Ptheingi99/MANGO1.5-Qwen3.5-9B-W8A8) (public). Same files on the team VM at `~/models/mango-w8a8-team16`. Hugging Face card: `base_model_relation: quantized`.
 
 ## How to reproduce
 
