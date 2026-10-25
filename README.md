@@ -1,7 +1,7 @@
 # greenmind-hackathon
 
 Team 16 (Peacock): GreenMind AI Hackathon.
-We serve `CMKL/MANGO1.5-Qwen3.5-9B` on one A100 40GB. Best graded run is vLLM 0.32. The goal is to answer as many requests on time as possible, using as little GPU energy as possible.
+We serve `CMKL/MANGO1.5-Qwen3.5-9B` on one A100 40GB. Best graded run is **Final #19: S 99.8 / 298/300**. The goal is to answer as many requests on time as possible, using as little GPU energy as possible.
 
 ## Our approach: our own INT8 (W8A8) weights
 
@@ -25,26 +25,28 @@ We serve `CMKL/MANGO1.5-Qwen3.5-9B` on one A100 40GB. Best graded run is vLLM 0.
 # 1. Quantize (about 30 s; runs on CPU)
 python quantization/quant_w8a8.py        # writes ~/models/mango-w8a8-team16
 
-# 2. Serve the 98.6 command (vLLM 0.32)
-#    copy serving/thinking_budget.py to ~/ on the VM first
+# 2. Power limit for the 99.8 run (held for the whole Final)
+sudo nvidia-smi -pl 400
+
+# 3. Serve (vLLM 0.32). Copy serving/thinking_budget.py to ~/ first.
 bash serving/serve_best.sh               # port 8000, served name "mango"
 ```
 
-The GPU power limit is set to 260 W and held constant for the whole run (`sudo nvidia-smi -pl 260`).
-
 ## Results
 
-Measured on the official grader (A100 40GB, power limit 260 W):
+Official grader, one A100 40GB:
 
-| Setup | Track | Score | On time (SLO met) | P95 time per token | J per request | Accuracy |
+| Setup | Track | Score | On time | P95 token | J/req | Accuracy |
 |---|---|---|---|---|---|---|
 | Prebuilt AWQ W4A16 (+ MTP) | Final | 0.0 | 90/300 | 113 ms | 195 | 87.1% |
-| Our W8A8 INT8 (+ MTP), GPU memory 0.90 | Final | 50.1 | 174/300 | 59 ms | 200 | 85.5% |
-| Our W8A8 INT8 (+ MTP), GPU memory 0.95 | Final | 78.2 | 230/300 | 56 ms | 198 | 85.5% |
-| W8A8 + vLLM 0.32, MTP 1, no thinking cap | Final | 94.6 | 253/300 | 55 ms | 166 | 88.2% |
-| **W8A8 + vLLM 0.32 + thinking cap + MTP 3** | Final | **98.6** | **287/300** | **43 ms** | **153** | 87.3% |
-| Same as 98.6 | Validation | 99.7 | 99/100 | 31 ms | 184 | 91.4% |
+| Our W8A8, mem 0.95, MTP 1, vLLM 0.27 | Final | 78.2 | 230/300 | 56 ms | 198 | 85.5% |
+| W8A8 + vLLM 0.32, MTP 1, no cap | Final | 94.6 | 253/300 | 55 ms | 166 | 88.2% |
+| + thinking cap + MTP 3, ~260 W | Final | 98.6 | 287/300 | 43 ms | 153 | 87.3% |
+| **Same flags, 400 W, fresh process** | Final | **99.8** | **298/300** | **33 ms** | **172** | 86.2% |
+| Same flags as 98.6 | Validation | 99.7 | 99/100 | 31 ms | 184 | 91.4% |
 
 Full table: [`EXPERIMENTS.md`](EXPERIMENTS.md).
 
-**KV cache.** INT8 weights are larger than 4-bit ones, so at `--gpu-memory-utilization 0.90` the KV cache shrank from 671k to 477k tokens and hit 100% on Final. 0.95 gave 646k tokens (78.2). Later we moved to vLLM 0.32, a thinking-token budget, and MTP K=3, which is the 98.6 row.
+**99.8 vs 98.6.** Serve flags did not change. VM traces (`runlog/traces/20261025-074111.csv` vs `20261025-082700.csv`): at peak (≥30 running) the 98.6 run sat at **258 W / 1169 MHz**; the 99.8 run sat at **380 W / 1397 MHz**. The 99.8 process was also a clean start. Energy stayed full credit (3.55×; 98.6 was 3.84×).
+
+**KV cache.** At mem 0.90 the INT8 KV cache (477k) hit 100% on Final. 0.95 fixed that (78.2). vLLM 0.32, thinking cap, and MTP K=3 are the later jumps.
