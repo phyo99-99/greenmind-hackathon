@@ -14,6 +14,8 @@ Rules we followed: one change at a time; prompts, max_tokens, thinking mode, tem
 | 10 | Our W8A8 + MTP, GPU memory 0.95 | 78.2 | 230/300 | 56 ms | 1.38 s | 198 | 2.37× | 85.5% |
 | 11 | + max-num-seqs 64 | 25.1 | 125/300 | 47 ms | 5.75 s | 190 | 1.34× | 87.8% |
 | 12 | + max-num-seqs 96 | 73.8 | 211/300 | 60 ms | 1.41 s | 190 | 2.28× | 87.8% |
+| 13 | seq-cap / queue (TTFT 4.62 s) | 22.3 | 119/300 | 48 ms | 4.62 s | 190 | 1.29× | 86.9% |
+| 14 | vLLM 0.27 restart (≈ Final 10) | 78.0 | 229/300 | 57 ms | 1.39 s | 198 | 2.36× | 85.5% |
 | 15 | vLLM 0.32, no thinking cap, MTP 1, prefill 1024 | 94.6 | 253/300 | 55 ms | 1.44 s | 166 | 3.12× | 88.2% |
 | 16 | + thinking cap, MTP 1 | 94.0 | 259/300 | 55 ms | 1.57 s | 179 | 2.97× | 88.4% |
 | 17 | thinking cap + prefill 2048 | 87.8 | 241/300 | 55 ms | 1.00 s | 178 | 2.78× | 89.0% |
@@ -41,7 +43,7 @@ Rules we followed: one change at a time; prompts, max_tokens, thinking mode, tem
 ## Key findings
 
 1. **The bottleneck was prompt reading (prefill), not memory.** At peak load the server read about 10,000 prompt tokens/s but generated only about 360 tokens/s across about 120 running requests, roughly 330 ms per token. Scheduler flags only moved this compute shortage around, which is why none of them helped.
-2. **4-bit weights don't speed up the maths on an A100.** W4A16 unpacks weights to 16-bit before multiplying. Our W8A8 runs on the INT8 tensor cores instead. Under the same 260 W cap, the GPU ran at 1410 MHz (its maximum) instead of about 1110 to 1170 MHz.
+2. **4-bit weights don't speed up the maths on an A100.** W4A16 unpacks weights to 16-bit before multiplying. Our W8A8 runs on the INT8 tensor cores instead. At a 260 W cap the 98.6 Final peak sat at **1169 MHz / 258 W**. At 400 W the 99.8 Final peak sat at **1397 MHz / 380 W** (card max 1410 MHz). See `traces/`.
 3. **Bigger weights mean less KV cache.** INT8 weights left only 477k tokens of KV cache at memory 0.90. It hit 100% in the Final, with 7 preemptions. Raising memory to 0.95 (646k tokens) took the Final from 50.1 to 78.2.
 4. **vLLM 0.32** (Final 15, 94.6) is a different engine than Final 14 (78.0 on 0.27). Not the same setup twice.
 5. **Thinking cap + MTP 3** (Final 18, 98.6 / 287, P95 43 ms). Cap alone (Final 16) added a few on-time requests but lost energy. Adaptive K was not used.
@@ -54,4 +56,4 @@ Rules we followed: one change at a time; prompts, max_tokens, thinking mode, tem
 - **320 W on the AWQ stack:** worse energy per on-time request. **400 W on the 98.6 stack** is the 99.8 row (peak no longer stuck at ~260 W).
 - **max-num-seqs 64 / 96:** Validation looked fine; Final queued (25.1 / 73.8).
 - **Prefill 600 and 2048:** worse energy or late tail on Final.
-- **Our two hide/guard schedulers:** Validation 0.0 and 66.4. Do not serve those.
+- **Our two hide/guard schedulers:** Validation 0.0 and 66.4. Code: `serving/prefill_guard.py`, `serving/deadline_hide.py`. Do not serve those.

@@ -29,8 +29,11 @@ python quantization/quant_w8a8.py        # writes ~/models/mango-w8a8-team16
 sudo nvidia-smi -pl 400
 
 # 3. Serve (vLLM 0.32). Copy serving/thinking_budget.py to ~/ first.
+#    serving/serve_best.sh is Final 19. serving/serve_w8a8.sh is the old 78.2 command.
 bash serving/serve_best.sh               # port 8000, served name "mango"
 ```
+
+Failed scheduler tests (do not serve): `serving/prefill_guard.py`, `serving/deadline_hide.py`. Unused extra: `serving/deadline_prefill.py`.
 
 ## Results
 
@@ -47,6 +50,6 @@ Official grader, one A100 40GB:
 
 Full table: [`EXPERIMENTS.md`](EXPERIMENTS.md).
 
-**99.8 vs 98.6.** Serve flags did not change. VM traces (`runlog/traces/20261025-074111.csv` vs `20261025-082700.csv`): at peak (≥30 running) the 98.6 run sat at **258 W / 1169 MHz**; the 99.8 run sat at **380 W / 1397 MHz**. The 99.8 process was also a clean start. Energy stayed full credit (3.55×; 98.6 was 3.84×).
+**99.8 vs 98.6.** Serve flags did not change. Traces in [`traces/`](traces/): at peak (≥30 running) the 98.6 run sat at **258 W / 1169 MHz**; the 99.8 run sat at **380 W / 1397 MHz**. The 99.8 process was also a clean start. Energy stayed full credit (3.55×; 98.6 was 3.84×).
 
 **KV cache.** At mem 0.90 the INT8 KV cache (477k) hit 100% on Final. 0.95 fixed that (78.2). vLLM 0.32, thinking cap, and MTP K=3 are the later jumps.

@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
-# serve_w8a8.sh — Team 16 (Peacock): serve our own W8A8 (INT8) model.
-#
-# Exactly the same flags as our best run so far (62.9 points, prebuilt AWQ + MTP 1),
-# with the model path pointing to our W8A8 build (see quant_w8a8.py).
-# gpu-memory-utilization raised 0.90 -> 0.95: at 0.90 the KV cache (477k tokens)
-# hit 100% under Final load with 7 preemptions; at 0.95 it is 646k tokens.
-#
-# Run on the VM, inside the vLLM environment, with no other vLLM server running.
+# serve_w8a8.sh — historical Final #10 (78.2). Not the 99.8 command.
+# Current best: serving/serve_best.sh (vLLM 0.32, thinking cap, MTP 3, 400 W).
 
 source "$HOME/vllm-env/bin/activate"
 export VLLM_USE_FLASHINFER_SAMPLER=0
