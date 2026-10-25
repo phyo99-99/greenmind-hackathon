@@ -18,6 +18,7 @@ We serve `CMKL/MANGO1.5-Qwen3.5-9B` on one A100 40GB. Best graded run is **Final
 - **Calibration data:** none. Weights are rounded directly, and activation scales are computed per token at run time.
 - **Kept in 16-bit:** `lm_head`, the vision encoder (unused), and the MTP draft head. This is the same ignore list as CMKL's own AWQ recipe.
 - **No fine-tuning.** Prompts, chat template, max_tokens, thinking mode and sampling are unchanged (all set by the grader).
+- **Where the files are:** `~/models/mango-w8a8-team16` on the team VM. No Hugging Face upload yet. This statement is the record until a HF URL exists.
 
 ## How to reproduce
 
@@ -50,6 +51,8 @@ Official grader, one A100 40GB:
 
 Full table: [`EXPERIMENTS.md`](EXPERIMENTS.md).
 
-**99.8 vs 98.6.** Serve flags did not change. Traces in [`traces/`](traces/): at peak (≥30 running) the 98.6 run sat at **258 W / 1169 MHz**; the 99.8 run sat at **380 W / 1397 MHz**. The 99.8 process was also a clean start. Energy stayed full credit (3.55×; 98.6 was 3.84×).
+**99.8 vs 98.6.** Serve flags did not change. Traces in [`traces/`](traces/): at peak (≥30 running) the 98.6 run sat at **258 W / 1169 MHz**; the 99.8 run sat at **380 W / 1397 MHz**. The 99.8 process was also a clean start. Energy stayed full credit (3.55× vs 3.84×) even though joules rose (153 → 172). Accuracy was 86.2% (R 0.982), still full A.
+
+Env pins: [`requirements.txt`](requirements.txt) (`vllm==0.32.0` for the 99.8 serve).
 
 **KV cache.** At mem 0.90 the INT8 KV cache (477k) hit 100% on Final. 0.95 fixed that (78.2). vLLM 0.32, thinking cap, and MTP K=3 are the later jumps.

@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 # Final #19 — S 99.8 / 298/300
 # vLLM 0.32, W8A8, thinking cap, MTP 3, prefill 1024
-# Hold 400 W for the whole run: sudo nvidia-smi -pl 400
+# Hold 400 W for the whole run before this script:
+#   sudo nvidia-smi -pl 400
 set -euo pipefail
+if command -v nvidia-smi >/dev/null; then
+  echo "power.limit $(nvidia-smi --query-gpu=power.limit --format=csv,noheader) (want 400.00 W)"
+fi
 source "$HOME/vllm032-env/bin/activate"
 export VLLM_USE_FLASHINFER_SAMPLER=0
 export PYTHONPATH="$HOME${PYTHONPATH:+:$PYTHONPATH}"

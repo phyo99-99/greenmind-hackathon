@@ -7,8 +7,13 @@ Rules we followed: one change at a time; prompts, max_tokens, thinking mode, tem
 
 | # | Setup | Score | On time | P95 time per token | P95 first token | J/request | Energy vs baseline | Accuracy |
 |---|---|---|---|---|---|---|---|---|
+| 1 | Early mango serve | 0.0 | 97/300 | 104 ms | 2.00 s | 220 | 0.90× | 86.9% |
+| 2 | Official AWQ W4A16 + MTP | 0.0 | 91/300 | 76 ms | 4.99 s | 201 | 0.93× | 86.9% |
+| 3 | Official AWQ W4A16 + MTP | 0.0 | 89/300 | 93 ms | 2.90 s | 231 | 0.79× | 86.0% |
+| 4 | Early mango serve | 0.0 | 85/300 | 98 ms | 2.59 s | 222 | 0.79× | 87.9% |
 | 5 | Earlier tuning attempt (prebuilt model) | 0.0 | 68/300 | 143 ms | 5.67 s | 193 | 0.72× | 84.6% |
 | 6 | Earlier tuning attempt (prebuilt model) | 0.0 | 75/300 | 139 ms | 4.50 s | 189 | 0.81× | 88.7% |
+| 7 | Crash | FAILED | — | — | — | — | — | — |
 | 8 | Prebuilt AWQ W4A16 + MTP | 0.0 | 90/300 | 113 ms | 3.13 s | 195 | 0.95× | 87.1% |
 | 9 | **Our W8A8** + MTP, GPU memory 0.90 | 50.1 | 174/300 | 59 ms | 1.75 s | 200 | 1.78× | 85.5% |
 | 10 | Our W8A8 + MTP, GPU memory 0.95 | 78.2 | 230/300 | 56 ms | 1.38 s | 198 | 2.37× | 85.5% |

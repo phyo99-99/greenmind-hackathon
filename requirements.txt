@@ -1,0 +1,4 @@
+# 99.8 serve is vLLM 0.32 on the VM (~/vllm032-env).
+# Early W8A8 Finals used vLLM 0.27.1 (~/vllm-env).
+vllm==0.32.0
+llmcompressor>=0.6
